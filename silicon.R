@@ -250,8 +250,8 @@ KW_cdf <- function(x,a,b,c, lambda){
 F.KW = KW_cdf(x,
               a=0.8261,
               b=0.5374,
-              c=0.2326,
-              lambda=5.4234)
+              lambda=0.2326,
+              c=5.4234)
 
 SS.KW = sum((F.KW - F_observed)^2)
 
