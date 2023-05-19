@@ -254,29 +254,42 @@ KW_cdf <- function(x,a,b,c, lambda){
 }
 
 F.KW = KW_cdf(x,
-              a=192.45,
-              b=2814.5,
-              lambda=1068.1,
-              c=0.1067)
+              a = 192.45,
+              b = 2814.5,
+              lambda = 1068.1,
+              c = 0.1067)
 
 SS.KW = sum((F.KW - F_observed)^2)
 
-## group data
+## GLLoGW
+GLLoGW_cdf <- function(x,c,beta,delta,theta){
+  1-pgamma(-(theta^(-1))*log(1-((1+x^c)^(-1))*exp(-1*x^beta)), delta)
+}
 
-df.cdf = tibble(F_observed,F.RBHW,F.APTLW,F.GELLoG,F.TLGW,F.KW) %>%
+F.GLLoGW = GLLoGW_cdf(x,
+                      c = 0.8350, 
+                      beta = 0.1109,
+                      delta = 4.2111, 
+                      theta = 0.0024)
+
+SS.GLLoGW = sum((F.GLLoGW - F_observed)^2)
+
+## group data
+df.cdf = tibble(F_observed,F.RBHW,F.APTLW,F.GELLoG,F.TLGW,F.KW,F.GLLoGW) %>%
   pivot_longer(cols=-F_observed, names_to = "dist", values_to = "y")
 
 gg= df.cdf %>%
   ggplot(aes(x=F_observed,y=y, col=dist))+
   geom_line()+
   scale_colour_manual(name="", #legend name with a title "Parameters" if you want
-                      labels = c(paste0("(SS=",round(SS.APTLW,4),")APTLW"),
-                                 paste0("(SS=",round(SS.GELLoG,4),")GELLoG"),
-                                 paste0("(SS=",round(SS.KW,4),")KW"),
-                                 paste0("(SS=",round(SS.RBHW,4),")RB-Harris-W"),
-                                 paste0("(SS=",round(SS.TLGW,4),")TLGW")
+                      labels = c(paste0("(SS=",round(SS.APTLW,4),") APTLW"),
+                                 paste0("(SS=",round(SS.GELLoG,4),") GELLoG"),
+                                 paste0("(SS=",round(SS.GELLoG,4),") GLLoGW"),
+                                 paste0("(SS=",round(SS.KW,4),") KW"),
+                                 paste0("(SS=",round(SS.RBHW,4),") RB-Harris-W"),
+                                 paste0("(SS=",round(SS.TLGW,4),") TLGW")
                       ),
-                      values = c("red", "magenta","green","black","blue"))+
+                      values = c("red", "magenta","orange","green","black","blue"))+
   geom_line(aes(x=F_observed,y=F_observed))+
   theme_bw()+
   labs(x="Observed Probability", y="Expected Probability")+
