@@ -1,4 +1,4 @@
-#RB-Harris-G Plots
+# RB-Harris-G Plots
 
 Each R script contains a unique data set and generates the following plots for each:
 
