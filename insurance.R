@@ -1,26 +1,24 @@
-### Code plotting
-
 ## Add libraries
 library(tidyverse)
 library(ggfortify)
 library(survival)
 library(patchwork)
-#library(survminer)
 library(ggsurvfit)
 
 
-## Data 
 
-x=c(8.0, 18.2, 22.7, 16.3, 11.1, 26.9, 26.6, 18.9, 24.3, 20.6,
-    40.7, 56.9, 49.3, 55.0, 49.4, 50.7, 46.6, 87.9, 79.2, 78.9,
-    82.1, 63.7, 61.7, 68.8, 60.8, 69.2, 55.9, 54.8, 65.4, 53.7,
-    65.5, 52.7, 52.9, 50.7, 61.3, 49.6, 47.5, 58.9, 47.4, 56.0,
-    46.9, 46.5, 57.9, 45.7, 44.5, 53.1, 44.1, 41.8, 48.2, 37.1,
-    32.7, 37.6, 42.8, 47.4, 35.6, 32.2, 30.1, 31.2
-)
+##########
+## Data ##
+##########
+
+x=sort(c(08.0, 18.2, 22.7, 16.3, 11.1, 26.9, 26.6, 18.9, 24.3, 20.6,
+         40.7, 56.9, 49.3, 55.0, 49.4, 50.7, 46.6, 87.9, 79.2, 78.9,
+         82.1, 63.7, 61.7, 68.8, 60.8, 69.2, 55.9, 54.8, 65.4, 53.7,
+         65.5, 52.7, 52.9, 50.7, 61.3, 49.6, 47.5, 58.9, 47.4, 56.0,
+         46.9, 46.5, 57.9, 45.7, 44.5, 53.1, 44.1, 41.8, 48.2, 37.1,
+         32.7, 37.6, 42.8, 47.4, 35.6, 32.2, 30.1, 31.2))
 
 ## Sorted Data
-x = sort(x)
 df = data.frame(x=x,evt=1)
 km = survfit(Surv(x,evt)~1,data=df)
 
@@ -29,14 +27,20 @@ y_surv= km$surv
 
 
 
-## Survival Function of the Model
+############################################
+## PLOT 1: Survival Function of the Model ##
+############################################
+
+
+
 rbhw <-function(x,delta,v,theta,lambda)
 {
   pgamma(-log(1-((theta*(exp(-x^lambda))^v)/(1-(1-theta)*(exp(-x^lambda))^v))^(1/v)), delta)
 }
+
 ## survival model #############
 y_main=rbhw(x,
-            delta =9.8921e-01, 
+            delta = 9.8921e-01, 
             v = 3.5825e-01,
             theta =  6.2749e+02, 
             lambda =6.9285e-01)
@@ -76,7 +80,14 @@ gg = df.grp %>%
 print(gg)
 ##ggsave("survival_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
-### ECDF  #############
+
+
+##################
+## PLOT 2: ECDF ##
+##################
+
+
+
 gg = df.grp %>%
   ggplot(aes(x=x))+
   geom_line(aes(y=1-y_main,col=I("black")),size=1) +
@@ -106,8 +117,14 @@ gg = df.grp %>%
 print(gg)
 ##ggsave("ecdf_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
-# Scaled TTT Transform
-xs = sort(x)
+
+
+##################################
+## PLOT 3: Scaled TTT Transform ##
+##################################
+
+
+
 df = tibble(x=(1:length(xs))/length(xs) , f = (cumsum(xs) + (length(xs)-(1:length(x)))*xs)/ sum(xs))
 gg = df %>%
   ggplot(aes(x=x,y=f))+
@@ -135,7 +152,13 @@ gg = df %>%
 print(gg)
 ##ggsave("TTT_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
-#### the hrf of the model
+
+
+##############################
+## PLOT 4: HRF of the model ##
+##############################
+
+
 
 x=sort(x)
 hrf.rbhw = function(x,delta,v,theta,lambda){
@@ -174,7 +197,12 @@ gg= hrf.df %>%
 print(gg)
 ##ggsave("h_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
-### Probability Plots
+
+
+###############################
+## PLOT 5: Probability Plots ##
+###############################
+
 
 
 F_observed = ((1:length(x))-0.375)/(length(x)+0.25)
@@ -228,8 +256,8 @@ KW_cdf <- function(x,a,b,c, lambda){
 F.KW = KW_cdf(x,
               a=192.45,
               b=2814.5,
-              c=1068.1,
-              lambda=0.1067)
+              lambda=1068.1,
+              c=0.1067)
 
 SS.KW = sum((F.KW - F_observed)^2)
 
@@ -242,11 +270,11 @@ gg= df.cdf %>%
   ggplot(aes(x=F_observed,y=y, col=dist))+
   geom_line()+
   scale_colour_manual(name="", #legend name with a title "Parameters" if you want
-                      labels = c(paste0("APTLW(SS=",round(SS.APTLW,4),")"),
-                                 paste0("GELLoG(SS=",round(SS.GELLoG,4),")"),
-                                 paste0("KW(SS=",round(SS.KW,4),")"),
-                                 paste0("RB-Harris-W(SS=",round(SS.RBHW,4),")"),
-                                 paste0("TLGW(SS=",round(SS.TLGW,4),")")
+                      labels = c(paste0("(SS=",round(SS.APTLW,4),")APTLW"),
+                                 paste0("(SS=",round(SS.GELLoG,4),")GELLoG"),
+                                 paste0("(SS=",round(SS.KW,4),")KW"),
+                                 paste0("(SS=",round(SS.RBHW,4),")RB-Harris-W"),
+                                 paste0("(SS=",round(SS.TLGW,4),")TLGW")
                       ),
                       values = c("red", "magenta","green","black","blue"))+
   geom_line(aes(x=F_observed,y=F_observed))+

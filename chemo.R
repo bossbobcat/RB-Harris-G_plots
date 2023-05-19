@@ -11,19 +11,14 @@ library(ggsurvfit)
 
 ## Data 
 
-x=c(0.047, 0.115, 0.121, 0.132, 0.164, 0.197, 0.203, 
-    0.260, 0.282, 0.296, 0.334, 0.395, 0.458, 0.466, 
-    0.501, 0.507, 0.529, 0.534, 0.540, 0.641, 0.644, 
-    0.696, 0.841, 0.863, 1.099, 1.219, 1.271, 1.326, 
-    1.447, 1.485, 1.553, 1.581, 1.589, 2.178, 2.343, 
-    2.416, 2.444, 2.825, 2.830, 3.578, 3.658, 3.743, 
-    3.978, 4.003, 4.033
-    
-)
+x=sort(c(0.047, 0.115, 0.121, 0.132, 0.164, 0.197, 0.203, 0.260, 0.282,
+         0.296, 0.334, 0.395, 0.458, 0.466, 0.501, 0.507, 0.529, 0.534,
+         0.540, 0.641, 0.644, 0.696, 0.841, 0.863, 1.099, 1.219, 1.271,
+         1.326, 1.447, 1.485, 1.553, 1.581, 1.589, 2.178, 2.343, 2.416,
+         2.444, 2.825, 2.830, 3.578, 3.658, 3.743, 3.978, 4.003, 4.033))
 
-## Sorted Data
-x = sort(x)
 df = data.frame(x=x,evt=1)
+
 km = survfit(Surv(x,evt)~1,data=df)
 
 ## Survival data
@@ -31,11 +26,17 @@ y_surv= km$surv
 
 
 
-## Survival Function of the Model
+############################################
+## PLOT 1: Survival Function of the Model ##
+############################################
+
+
+
 rbhw <-function(x,delta,v,theta,lambda)
 {
   pgamma(-log(1-((theta*(exp(-x^lambda))^v)/(1-(1-theta)*(exp(-x^lambda))^v))^(1/v)), delta)
 }
+
 ## survival model #############
 y_main=rbhw(x,
             delta =1.1670e+01,
@@ -80,7 +81,13 @@ print(gg)
 ##ggsave("survival_chemo.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 
-### ECDF  #############
+
+##################
+## PLOT 2: ECDF ##
+##################
+
+
+
 gg = df.grp %>%
   ggplot(aes(x=x))+
   geom_line(aes(y=1-y_main,col=I("black")),size=1) +
@@ -112,8 +119,12 @@ print(gg)
 
 
 
+##################################
+## PLOT 3: Scaled TTT Transform ##
+##################################
 
-# Scaled TTT Transform
+
+
 xs = sort(x)
 df = tibble(x=(1:length(xs))/length(xs) , f = (cumsum(xs) + (length(xs)-(1:length(x)))*xs)/ sum(xs))
 gg = df %>%
@@ -144,7 +155,11 @@ print(gg)
 
 
 
-#### the hrf of the model
+##############################
+## PLOT 4: HRF of the model ##
+##############################
+
+
 
 x=sort(x)
 hrf.rbhw = function(x,delta,v,theta,lambda){
@@ -185,7 +200,10 @@ print(gg)
 
 
 
-### Probability Plots
+###############################
+## PLOT 5: Probability Plots ##
+###############################
+
 
 
 F_observed = ((1:length(x))-0.375)/(length(x)+0.25)
@@ -237,6 +255,8 @@ KW_cdf <- function(x,a,b,c, lambda){
 F.KW = KW_cdf(x,
               a=0.1966,
               b=3.1492,
+              ## Values for c and lambda are flipped in the paper.
+              ## This configuration results in smaller SS.KW.
               c=4.5772,
               lambda=0.1587)
 
@@ -254,11 +274,11 @@ gg= df.cdf %>%
   ggplot(aes(x=F_observed,y=y, col=dist))+
   geom_line()+
   scale_colour_manual(name="", #legend name with a title "Parameters" if you want
-                      labels = c(paste0("APTLW(SS=",round(SS.APTLW,4),")"),
-                                 paste0("GELLoG(SS=",round(SS.GELLoG,4),")"),
-                                 paste0("KW(SS=",round(SS.KW,4),")"),
-                                 paste0("RB-Harris-W(SS=",round(SS.RBHW,4),")"),
-                                 paste0("TLGW(SS=",round(SS.TLGW,4),")")
+                      labels = c(paste0("(SS=",round(SS.APTLW,4),")APTLW"),
+                                 paste0("(SS=",round(SS.GELLoG,4),")GELLoG"),
+                                 paste0("(SS=",round(SS.KW,4),")KW"),
+                                 paste0("(SS=",round(SS.RBHW,4),")RB-Harris-W"),
+                                 paste0("(SS=",round(SS.TLGW,4),")TLGW")
                                  ),
                       values = c("red", "magenta","green","black","blue"))+
   geom_line(aes(x=F_observed,y=F_observed))+

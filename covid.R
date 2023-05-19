@@ -31,7 +31,13 @@ km = survfit(Surv(x,evt)~1,data=df)
 y_surv= km$surv
 
 
-## Survival Function of the Model
+
+############################################
+## PLOT 1: Survival Function of the Model ##
+############################################
+
+
+
 rbhw <-function(x,delta,v,theta,lambda)
 {
   pgamma(-log(1-((theta*(exp(-x^lambda))^v)/(1-(1-theta)*(exp(-x^lambda))^v))^(1/v)), delta)
@@ -80,7 +86,13 @@ print(gg)
 ##ggsave("survival_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 
-### ECDF  #############
+
+##################
+## PLOT 2: ECDF ##
+##################
+
+
+
 gg = df.grp %>%
   ggplot(aes(x=x))+
   geom_line(aes(y=1-y_main,col=I("black")),size=1) +
@@ -112,8 +124,12 @@ print(gg)
 
 
 
+##################################
+## PLOT 3: Scaled TTT Transform ##
+##################################
 
-# Scaled TTT Transform
+
+
 xs = sort(x)
 df = tibble(x=(1:length(xs))/length(xs) , f = (cumsum(xs) + (length(xs)-(1:length(x)))*xs)/ sum(xs))
 gg = df %>%
@@ -144,7 +160,11 @@ print(gg)
 
 
 
-#### the hrf of the model
+##############################
+## PLOT 4: HRF of the model ##
+##############################
+
+
 
 x=sort(x)
 hrf.rbhw = function(x,delta,v,theta,lambda){
@@ -185,7 +205,10 @@ print(gg)
 
 
 
-### Probability Plots
+###############################
+## PLOT 5: Probability Plots ##
+###############################
+
 
 
 F_observed = ((1:length(x))-0.375)/(length(x)+0.25)
@@ -237,10 +260,12 @@ KW_cdf <- function(x,a,b,c, lambda){
 }
 
 F.KW = KW_cdf(x,
-              a=23.7652,
-              b=526.5723,
-              c=0.1835,
-              lambda=2.4539)
+              a = 23.7652,
+              b = 526.5723,
+              ## Values for c and lambda are flipped in the paper.
+              ## This configuration results in smaller SS.KW.
+              c = 0.1835,  
+              lambda = 2.4539)
 
 SS.KW = sum((F.KW - F_observed)^2)
 
@@ -253,11 +278,11 @@ gg= df.cdf %>%
   ggplot(aes(x=F_observed,y=y, col=dist))+
   geom_line()+
   scale_colour_manual(name="", #legend name with a title "Parameters" if you want
-                      labels = c(paste0("APTLW(SS=",round(SS.APTLW,4),")"),
-                                 paste0("GELLoG(SS=",round(SS.GELLoG,4),")"),
-                                 paste0("KW(SS=",round(SS.KW,4),")"),
-                                 paste0("RB-Harris-W(SS=",round(SS.RBHW,4),")"),
-                                 paste0("TLGW(SS=",round(SS.TLGW,4),")")
+                      labels = c(paste0("(SS=",round(SS.APTLW,4),")APTLW"),
+                                 paste0("(SS=",round(SS.GELLoG,4),")GELLoG"),
+                                 paste0("(SS=",round(SS.KW,4),")KW"),
+                                 paste0("(SS=",round(SS.RBHW,4),")RB-Harris-W"),
+                                 paste0("(SS=",round(SS.TLGW,4),")TLGW")
                       ),
                       values = c("red", "magenta","green","black","blue"))+
   geom_line(aes(x=F_observed,y=F_observed))+
