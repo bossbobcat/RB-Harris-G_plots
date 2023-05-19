@@ -74,7 +74,7 @@ gg = df.grp %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("survival_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("survival_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 ### ECDF  #############
 gg = df.grp %>%
@@ -104,7 +104,7 @@ gg = df.grp %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("ecdf_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("ecdf_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 # Scaled TTT Transform
 xs = sort(x)
@@ -133,7 +133,7 @@ gg = df %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("TTT_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("TTT_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 #### the hrf of the model
 
@@ -172,7 +172,7 @@ gg= hrf.df %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("h_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("h_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 ### Probability Plots
 
@@ -267,4 +267,4 @@ gg= df.cdf %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("pp_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("pp_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution

@@ -77,7 +77,7 @@ gg = df.grp %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("survival_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("survival_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 
 ### ECDF  #############
@@ -108,7 +108,7 @@ gg = df.grp %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("ecdf_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("ecdf_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 
 
@@ -140,7 +140,7 @@ gg = df %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("TTT_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("TTT_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 
 
@@ -181,7 +181,7 @@ gg= hrf.df %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("h_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("h_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 
 
 
@@ -278,4 +278,4 @@ gg= df.cdf %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-ggsave("pp_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+##ggsave("pp_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
