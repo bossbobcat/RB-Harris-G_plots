@@ -290,7 +290,7 @@ gg= df.cdf %>%
                                  paste0("(SS=",round(SS.RBHW,4),") RB-Harris-W"),
                                  paste0("(SS=",round(SS.TLGW,4),") TLGW")
                       ),
-                      values = c("red", "magenta","orange","green","black","blue"))+
+                      values = c("red", "magenta","green","cyan","black","blue"))+
   geom_line(aes(x=F_observed,y=F_observed))+
   theme_bw()+
   labs(x="Observed Probability", y="Expected Probability")+
@@ -309,5 +309,5 @@ gg= df.cdf %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-##ggsave("pp_chemo.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+ggsave("pp_chemo.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
 

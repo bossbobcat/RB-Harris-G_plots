@@ -212,6 +212,7 @@ print(gg)
 
 
 F_observed = ((1:length(x))-0.375)/(length(x)+0.25)
+
 F.RBHW = 1- rbhw(x,
                  delta =0.191359,   
                  v =13.524331, 
@@ -220,54 +221,31 @@ F.RBHW = 1- rbhw(x,
 
 SS.RBHW = sum((F.RBHW - F_observed)^2)
 
-
-
-#GELLoG
-
-GELLoG_cdf = function(x,lambda,c,alpha, delta) {
-  (pgamma(-log(1-((1-((1+lambda+lambda*x)/(1+lambda))*(exp(-lambda*x)/(1+x^c)))^alpha)),delta))
-}
-
-F.GELLoG = GELLoG_cdf(x,lambda=0.9081,c=1.3517,alpha=1.4120, delta=3.0399)
-
-SS.GELLoG = sum((F.GELLoG - F_observed)^2)    
-
-### APTLW 
-
+## APTLW 
 APTLW_cdf <- function(x,theta,alpha, beta ,lambda) {
   ((alpha^((1-exp(-2*lambda*x^beta))^theta))-1)/(alpha-1)
 }
 
-F.APTLW = APTLW_cdf(x,theta=  5.8553, alpha=0.000027609  , beta=0.5942  ,lambda=0.2816)
+F.APTLW = APTLW_cdf(x,
+                    theta=  5.8553, 
+                    alpha=0.000027609  , 
+                    beta=0.5942  ,
+                    lambda=0.2816)
+
 SS.APTLW = sum((F.APTLW - F_observed)^2)   
 
-#TLGW
-
-TLGW_cdf <- function(data,alpha, theta, lambda,beta) {
-  ((1-exp(-(lambda*x)^beta))^(theta*alpha))*(2-(1-exp(-(lambda*x)^beta))^theta)^(alpha) 
+## GELLoG
+GELLoG_cdf = function(x,lambda,c,alpha, delta) {
+  (pgamma(-log(1-((1-((1+lambda+lambda*x)/(1+lambda))*(exp(-lambda*x)/(1+x^c)))^alpha)),delta))
 }
 
-F.TLGW = TLGW_cdf(x,alpha=2.2614,
-                  theta=1.6008 ,
-                  lambda= 0.3910,
-                  beta=0.9870)
-SS.TLGW = sum((F.TLGW - F_observed)^2)   
+F.GELLoG = GELLoG_cdf(x,
+                      lambda=0.9081,
+                      c=1.3517,
+                      alpha=1.4120, 
+                      delta=3.0399)
 
-
-#KW
-KW_cdf <- function(x,a,b,c, lambda){
-  1-(1-(1-exp(-(lambda*x)^c))^a)^b
-}
-
-F.KW = KW_cdf(x,
-              a = 23.7652,
-              b = 526.5723,
-              ## Values for c and lambda are flipped in the paper.
-              ## This configuration results in smaller SS.KW.
-              c = 0.1835,  
-              lambda = 2.4539)
-
-SS.KW = sum((F.KW - F_observed)^2)
+SS.GELLoG = sum((F.GELLoG - F_observed)^2)    
 
 ## GLLoGW
 GLLoGW_cdf <- function(x,c,beta,delta,theta){
@@ -281,6 +259,34 @@ F.GLLoGW = GLLoGW_cdf(x,
                       theta = 0.4962)
 
 SS.GLLoGW = sum((F.GLLoGW - F_observed)^2)
+
+## KW
+KW_cdf <- function(x,a,b,c, lambda){
+  1-(1-(1-exp(-(lambda*x)^c))^a)^b
+}
+
+F.KW = KW_cdf(x,
+              a = 23.7652,
+              b = 526.5723,
+              #!!!          Values for c and lambda are flipped in the paper.
+              #!!!          (i.e. c=2.4539 and lambda=0.1835). Reversing them 
+              #!!!          results in correct plot.
+              c = 0.1835,  
+              lambda = 2.4539)
+
+SS.KW = sum((F.KW - F_observed)^2)
+
+## TLGW
+TLGW_cdf <- function(data,alpha, theta, lambda,beta) {
+  ((1-exp(-(lambda*x)^beta))^(theta*alpha))*(2-(1-exp(-(lambda*x)^beta))^theta)^(alpha) 
+}
+
+F.TLGW = TLGW_cdf(x,alpha=2.2614,
+                  theta=1.6008 ,
+                  lambda= 0.3910,
+                  beta=0.9870)
+
+SS.TLGW = sum((F.TLGW - F_observed)^2)   
 
 ## group data
 df.cdf = tibble(F_observed,F.RBHW,F.APTLW,F.GELLoG,F.TLGW,F.KW,F.GLLoGW) %>%
@@ -297,7 +303,7 @@ gg= df.cdf %>%
                                  paste0("(SS=",round(SS.RBHW,4),") RB-Harris-W"),
                                  paste0("(SS=",round(SS.TLGW,4),") TLGW")
                       ),
-                      values = c("red", "magenta","orange","green","black","blue"))+
+                      values = c("red", "magenta","green","cyan","black","blue"))+
   geom_line(aes(x=F_observed,y=F_observed))+
   theme_bw()+
   labs(x="Observed Probability", y="Expected Probability")+
@@ -316,4 +322,4 @@ gg= df.cdf %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
-##ggsave("pp_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+ggsave("pp_covid.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution

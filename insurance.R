@@ -124,7 +124,7 @@ print(gg)
 ##################################
 
 
-
+xs=x
 df = tibble(x=(1:length(xs))/length(xs) , f = (cumsum(xs) + (length(xs)-(1:length(x)))*xs)/ sum(xs))
 gg = df %>%
   ggplot(aes(x=x,y=f))+
@@ -289,7 +289,7 @@ gg= df.cdf %>%
                                  paste0("(SS=",round(SS.RBHW,4),") RB-Harris-W"),
                                  paste0("(SS=",round(SS.TLGW,4),") TLGW")
                       ),
-                      values = c("red", "magenta","orange","green","black","blue"))+
+                      values = c("red", "magenta","green","cyan","black","blue"))+
   geom_line(aes(x=F_observed,y=F_observed))+
   theme_bw()+
   labs(x="Observed Probability", y="Expected Probability")+
@@ -309,3 +309,118 @@ gg= df.cdf %>%
         legend.background = element_rect(fill = "transparent")) #make transparent background in legend
 print(gg)
 ##ggsave("pp_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
+
+
+
+#######################
+## PLOT 6: Histogram ##
+#######################
+
+
+
+domain = seq(8,87.9,0.1)
+
+## RB-Harris-W
+RBHW_pdf <- function(x,delta,v,theta,lambda) {
+  (1/gamma(delta))*(( -log(1-((theta*(exp(-x^lambda))^v)/(1-(1-theta)*(exp(-x^lambda))^v))^(1/v)))^(delta-1))*((theta^(1/v))*lambda*(x^(lambda-1))*exp(-x^lambda))/((1-(1-theta)*(exp(-x^lambda))^v)^(1+(1/v)))
+}
+
+y.RBHW = RBHW_pdf(domain,
+                  delta = 9.8921e-01,
+                  v = 3.5825e-01,
+                  theta = 6.2749e+02,
+                  lambda = 6.9285e-01)
+
+## KW
+KW_pdf <- function(x,a,b,c,lambda){
+  a*b*c*(lambda^c)*(x^(c-1))*exp(-(lambda*x)^c)*((1-exp(-(lambda*x)^c))^(a-1))*(1-(1-exp(-(lambda*x)^c))^a)^(b-1)
+}
+
+
+y.KW = KW_pdf(domain,
+              a = 1.9245e+02,
+              b = 2.8145e+03,
+              c = 0.1067,
+              lambda = 1.0681e+03)
+
+## TLGW
+TLGW_pdf <- function(alpha,theta, lambda, beta,x){
+  2*alpha*theta*beta*(lambda^beta)*(x^(beta-1))*(exp(-(lambda*x)^beta))*((1-exp(-(lambda*x)^beta))^(theta*alpha-1))*(1-(1-exp(-(lambda*x)^beta))^theta)*(2-(1-exp(-(lambda*x)^beta))^theta)^(alpha-1)                                                                              
+}
+
+y.TLGW = TLGW_pdf(domain, 
+                  alpha = 9.4941e+01,
+                  theta = 1.3352e-02,
+                  lambda = 1.0763e-02,
+                  beta= 9.1307)
+
+## GELLoG
+GELLoG_pdf <- function(lambda, c, alpha,delta,x){
+  (1/gamma(delta))*((-log(1-(1-(((1+lambda+lambda*x)*(exp(-lambda*x)))/((1+lambda)*(1+x^c))))^alpha))^(delta-1))*alpha*((1-(((1+lambda+lambda*x)*(exp(-lambda*x)))/((1+lambda)*(1+x^c))))^(alpha-1))*(((1+x^c)^-1)*(exp(-lambda*x))/(1+lambda))*((lambda^2)*(1+x)+((1+lambda+lambda*x)*(c*x^(c-1))/(1+x^c)))
+}
+
+y.GELLoG = GELLoG_pdf(domain, 
+                      lambda = 2.3173e-01 ,   
+                      c=  5.2945e-07      ,    
+                      alpha=  3.9148e-03    , 
+                      delta= 1.4879e+01   )
+
+## GLLoGW
+GLLoGW_pdf <- function(alpha,c,beta,delta,theta,x){
+  (1/(gamma(delta)*theta^delta))*((-log(1-((1+x^c)^(-1))*exp(-alpha*x^beta)))^(delta-1))*((1+x^c)^(-1))*exp(-alpha*x^beta)*(((1+x^c)^(-1))*c*x^(c-1)+alpha*beta*x^(beta-1))*(1-((1+x^c)^(-1))*exp(-alpha*x^beta))^((1/theta)-1)
+}
+
+y.GLLoGW = GLLoGW_pdf(domain, 
+                      alpha=1,
+                      c=0.83509968 ,  
+                      beta= 0.1109719 ,   
+                      delta= 4.21112408  ,  
+                      theta=0.00249738   )
+
+## APTLW
+APTLW_pdf <- function(x,theta,alpha,beta,lambda){
+  ((2*beta*theta*lambda*(log(alpha)))/(alpha-1))*((1-exp(-2*lambda*x^beta))^(theta-1))*(exp(-2*lambda*x^beta))*(alpha^((1-exp(-2*lambda*x^beta))^theta))*(x^(beta-1))
+}
+
+y.APTLW = APTLW_pdf(domain,
+                    theta=5.2831e-01    , 
+                    alpha=  1.0497e+02  , 
+                    beta= 2.1481e+00    ,
+                    lambda= 1.7417e-04  )
+
+## group models
+new_densities = data.frame(domain,y.RBHW,y.KW,y.GELLoG,y.GLLoGW,y.TLGW,y.APTLW) %>%
+  pivot_longer(cols = -domain,names_to = "Densities", values_to = "y")
+
+new_densities$x=c(x,rep(NA,nrow(new_densities)-length(x)))
+
+gg<-ggplot(new_densities) +   
+  geom_histogram(aes(x=x,y=..density..),breaks=seq(7.95,87.95,10), colour=1,fill="grey")+
+  geom_line(aes(x=domain,y=y,col=Densities),lwd=0.8) +
+  scale_colour_manual(name="", #legend name with a title "Parameters" if you want
+                      labels = c("APTLW","GELLoG","GLLoGW","KW","RB-Harris-W","TLGW"),
+                      values = c("red","magenta","green","cyan","black","blue"))+
+  scale_linetype_manual("",
+                        values = c(1:6),
+                        labels = c("APTLW","GELLoG","GWLLoG","KW","RB-Harris-W","TLGW"))+
+  labs(y="Density", x = "x")+
+  ylim(0,0.04)+
+  theme_bw()+
+  theme(axis.text = element_text(face="bold",size = 15,color="black"), #axis font 
+        axis.title = element_text(size=15,face="bold"),
+        axis.line.x.bottom = element_line(color = "black",size = 0.8), #control axis and its color  
+        axis.line.y.left = element_line(color = "black", size = 0.8), #control axis
+        
+        # legend.text = element_text(face="bold",size = 10), #uncomment if you want to bold
+        legend.text = element_text(size = 15),  #legend font
+        legend.title = element_text(face="bold",size = 19),
+        legend.text.align = 0,
+        legend.position = c(0.95,1.025), #position of the legend
+        legend.justification = c("right", "top"), # location of the legend within the specified location
+        legend.box.just = "right",
+        legend.margin = margin(1, 1, 1, 1), #change this will change the layout of the legend in the box created
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"), #remove all grids, delete if you want grid mesh on
+        legend.background = element_rect(fill = "transparent")) #make transparent background in legend
+print(gg)
+ggsave("hist_insurance.eps", gg, width=18, height=18, units="cm", dpi=1080) #save with a specific dimension and resolution
